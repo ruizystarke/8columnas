@@ -88,7 +88,12 @@ function leerClaims(jwt) {
 
 window.addEventListener('message', ev => {
   if (!ORIGENES_ZOHO.test(ev.origin)) return;          // solo mensajes de Zoho
-  const jwt = buscarJwt(ev.data, 0);
+  const d = ev.data;
+  if (d && d.type === 'ZOHO_WEBTAB_AUTH_TOKENS' && !d.jwt_token) {   // sesión terminada
+    token = null; $('btn').disabled = true;
+    return msg('La sesión de Zoho Books terminó. Recarga la pestaña.', 'err');
+  }
+  const jwt = (d && d.jwt_token) || buscarJwt(d, 0);
   if (!jwt) return;
   token = jwt;
   const c = leerClaims(jwt);
